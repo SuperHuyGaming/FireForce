@@ -42,10 +42,6 @@ public class FireStation {
         return trucks > 0;
     }
 
-    public void retrieve(int returnTrucks) {
-        this.trucks += returnTrucks;
-    }
-
     public boolean deployTruck(int requiredTrucks) {
         if (canDeploy()) {
             if(trucks < requiredTrucks) {
