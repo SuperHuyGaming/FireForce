@@ -1,6 +1,6 @@
 package MiniFireForce;
-import java.sql.Array;
 import  java.util.*;
+
 public class GenSituationClass {
     private List<Fire> activeFire;
     privare List<FireStation> fireStations;
@@ -27,11 +27,17 @@ public class GenSituationClass {
     }
 
     Random random = new Random();
-    String[] map = {"suburbs","downtown","industrial area","residential", "abandoned area" };
+    int x = random.nextInt(-1000,1000);
+    int y = random.nextInt(-1000, 1000);
     int severity = random.nextInt(10) + 1;
-    String location = map[random.nextInt(map.length)];
+    int time = random.nextInt(60);
 
-    Fire newFire =
+    Fire generateFire = new Fire(x,y,severity,time);
+    activeFire.add(generateFire);
+
+
+
+
 
 
 
