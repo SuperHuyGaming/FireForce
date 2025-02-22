@@ -26,5 +26,13 @@ public class GenSituationClass {
         this.fireStations = fireStations;
     }
 
+    Random random = new Random();
+    String[] map = {"suburbs","downtown","industrial area","residential", "abandoned area" };
+    int severity = random.nextInt(10) + 1;
+    String location = map[random.nextInt(map.length)];
+
+    Fire newFire =
+
+
 
 }
