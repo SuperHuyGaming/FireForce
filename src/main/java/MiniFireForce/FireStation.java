@@ -38,8 +38,8 @@ public class FireStation {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
 
-    public boolean canDeploy(int requiredTrucks) {
-        return trucks >= requiredTrucks;
+    public boolean canDeploy() {
+        return trucks > 0;
     }
 
     public void retrieve(int returnTrucks) {
@@ -47,7 +47,10 @@ public class FireStation {
     }
 
     public boolean deployTruck(int requiredTrucks) {
-        if (canDeploy(requiredTrucks)) {
+        if (canDeploy()) {
+            if(trucks < requiredTrucks) {
+                trucks = 0;
+            }
             trucks -= requiredTrucks;
             return true;
         }
