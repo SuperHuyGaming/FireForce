@@ -1,10 +1,12 @@
 package MiniFireForce;
 
+import java.util.Calendar;
+
 public class Fire {
     private int x;
     private int y;
-    private int severity;
-    private int time;
+    private String severity;
+    private Calendar time;
 
     /**
      * Constructor for Fire class
@@ -14,7 +16,7 @@ public class Fire {
      * @param severity severity of the fire
      * @param time     time of the fire
      */
-    public Fire(int x, int y, int severity, int time) {
+    public Fire(int x, int y, String severity, Calendar time) {
         this.x = x;
         this.y = y;
         this.severity = severity;
@@ -38,14 +40,14 @@ public class Fire {
     /**
      * Get the severity of the fire
      */
-    public int getSeverity() {
+    public String getSeverity() {
         return severity;
     }
 
     /**
      * Get the time of the fire
      */
-    public int getTime() {
+    public Calendar getTime() {
         return time;
     }
 
@@ -66,14 +68,14 @@ public class Fire {
     /**
      * Set the time of the fire
      */
-    public void setTime(int newTime) {
+    public void setTime(Calendar newTime) {
         this.time = newTime;
     }
 
     /**
      * Set the severity of the fire
      */
-    public void updateSeverity(int newSev) {
+    public void updateSeverity(String newSev) {
         this.severity = newSev;
     }
 }
