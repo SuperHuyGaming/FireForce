@@ -11,5 +11,13 @@ public class FireTruck {
         id++;
     }
 
+    public int getVelocity() {
+        return this.velocity;
+    }
+
+    public int extinguishTime() {
+        return this.extinguishTime;
+    }
+
 
 }
