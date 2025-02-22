@@ -4,7 +4,7 @@ import  java.util.*;
 
 public class GenSituationClass {
     private List<Fire> activeFire;
-    privare List<FireStation>fireStations;
+    private List<FireStation> fireStations;
 
     public GenSituationClass() {
         this.activeFire = new ArrayList<>();
