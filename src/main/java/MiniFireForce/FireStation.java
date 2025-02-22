@@ -34,4 +34,8 @@ public class FireStation {
         }
         return false;
     }
+
+    public void retrieveTruck(int trucks) {
+        this.trucks += trucks;
+    }
 }
