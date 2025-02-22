@@ -4,6 +4,7 @@ public class FireStation {
     private float xStation;
     private float yStation;
     private int trucks;
+
     // private PriorityQueue<Integer> queue;
     private static int id;
 
@@ -16,8 +17,9 @@ public class FireStation {
         id++;
     }
 
+    //Getters
     public int getID() {
-        return this.id;
+        return id;
     }
 
     public float getX() {
@@ -26,6 +28,10 @@ public class FireStation {
 
     public float getY() {
         return yStation;
+    }
+
+    public int getTrucks() {
+        return trucks;
     }
 
     public double calculateDistance(float xFire, float yFire) {
