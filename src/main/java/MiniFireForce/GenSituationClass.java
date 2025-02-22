@@ -9,8 +9,8 @@ import java.util.Random;
  * Manages fire emergencies by tracking fires, fire stations, and deploying fire trucks.
  */
 public class GenSituationClass {
-    private Map<Integer, Fire> activeFire;
-    private Map<Integer, FireStation> fireStations;
+    private final Map<Integer, Fire> activeFire;
+    private final Map<Integer, FireStation> fireStations;
 
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
