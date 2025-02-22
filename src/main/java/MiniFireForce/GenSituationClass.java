@@ -76,12 +76,17 @@ public class GenSituationClass {
 
     public void deployFireTrucks(Fire fire) {
         FireStation station = findFireStation(fire);
+
+        // No active station
         if (station == null) {
             return;
         }
 
         int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
         station.deployTruck(trucksNeeded);
+        if(trucksNeeded > 0) {
+
+        }
 
 
         boolean deployed = trucksNeeded == 0;
