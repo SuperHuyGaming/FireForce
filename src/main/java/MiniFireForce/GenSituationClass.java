@@ -1,37 +1,44 @@
 package MiniFireForce;
-import java.sql.Array;
+import java.time.LocalDateTime;
 import  java.util.*;
+
 public class GenSituationClass {
     private List<Fire> activeFire;
-    private List<FireStation> fireStations;
+    privare List<FireStation>fireStations;
 
-    public GenSituationClass(){
+    public GenSituationClass() {
         this.activeFire = new ArrayList<>();
         this.fireStations = new ArrayList<>();
     }
 
-    public List<Fire> getActiveFire(){
+    public List<Fire> getActiveFire() {
         return activeFire;
     }
 
-    public void setActiveFire(List<Fire> activeFire){
+    public void setActiveFire(List<Fire> activeFire) {
         this.activeFire = activeFire;
     }
 
-    public List<FireAction> fireStations(){
+    public List<FireAction> fireStations() {
         return fireStations;
     }
 
-    public void fireStation(){
+    public void fireStation() {
         this.fireStations = fireStations;
     }
 
+    public void generateFire(){
     Random random = new Random();
-    String[] map = {"suburbs","downtown","industrial area","residential", "abandoned area" };
+    int x = random.nextInt(-1000, 1000);
+    int y = random.nextInt(-1000, 1000);
     int severity = random.nextInt(10) + 1;
-    String location = map[random.nextInt(map.length)];
+    LocalDateTime time = LocalDateTime.now();;
 
-    // Fire newFire =
+    Fire generateFire = new Fire(x, y, severity, time);
+    activeFire.add(generateFire);
+}
+
+
 
 
 
