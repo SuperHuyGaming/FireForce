@@ -23,5 +23,15 @@ public class FireStation {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
 
+    public boolean canDeploy(int requiredTrucks) {
+        return trucks >= requiredTrucks;
+    }
 
+    public boolean deployTruck(int requiredTrucks) {
+        if (canDeploy(requiredTrucks)) {
+            trucks -= requiredTrucks;
+            return true;
+        }
+        return false;
+    }
 }
