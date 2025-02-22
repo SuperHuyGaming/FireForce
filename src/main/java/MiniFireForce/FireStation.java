@@ -42,13 +42,15 @@ public class FireStation {
         return trucks > 0;
     }
 
-    public void deployTruck(int requiredTrucks) {
+    public boolean deployTruck(int requiredTrucks) {
         if (canDeploy()) {
             if(trucks < requiredTrucks) {
                 trucks = 0;
             }
             trucks -= requiredTrucks;
+            return true;
         }
+        return false;
     }
 
     public void retrieveTruck(int trucks) {
