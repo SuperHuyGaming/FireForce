@@ -92,4 +92,14 @@ public class Fire {
     public void updateSeverity(int newSev) {
         this.severity = newSev;
     }
+
+    /**
+     * Remove the fire
+     */
+    public void removeFire() {
+        this.severity = 0;
+        this.time = null;
+        this.x = 0;
+        this.y = 0;
+    }
 }
