@@ -4,11 +4,7 @@ public class FireStation {
     private float xStation;
     private float yStation;
     private int trucks;
-
-    // private PriorityQueue<Integer> queue;
     private static int id;
-
-    // Take the location algorithm of Google Maps to estimate the distance
 
     public FireStation(float xStation, float yStation, int trucks) {
         this.xStation = xStation;
@@ -38,8 +34,8 @@ public class FireStation {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
 
-    public boolean canDeploy(int requiredTrucks) {
-        return trucks >= requiredTrucks;
+    public boolean canDeploy() {
+        return trucks > 0;
     }
 
     public void retrieve(int returnTrucks) {
@@ -47,7 +43,10 @@ public class FireStation {
     }
 
     public boolean deployTruck(int requiredTrucks) {
-        if (canDeploy(requiredTrucks)) {
+        if (canDeploy()) {
+            if (trucks < requiredTrucks) {
+                trucks = 0;
+            }
             trucks -= requiredTrucks;
             return true;
         }
