@@ -19,6 +19,15 @@ public class FireStation {
     public int getID() {
         return this.id;
     }
+
+    public float getX() {
+        return xStation;
+    }
+
+    public float getY() {
+        return yStation;
+    }
+
     public double calculateDistance(float xFire, float yFire) {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
@@ -34,4 +43,6 @@ public class FireStation {
         }
         return false;
     }
+
+
 }
