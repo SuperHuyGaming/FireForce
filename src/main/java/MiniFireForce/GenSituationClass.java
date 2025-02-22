@@ -2,11 +2,14 @@ package MiniFireForce;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFire;
     private final Map<Integer, FireStation> fireStations;
     private TreeMap<Double, FireStation> distances;
+    private ScheduledExecutorService scheduler;
 
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
@@ -92,5 +95,33 @@ public class GenSituationClass {
     // Put down a fire and return deployed trucks
     public void removeFire(Fire fire) {
         activeFire.remove(fire.getID());
+    }
+
+    /**
+     * Start the fire time, each 20 seconds 0-10% spread increase is implemented
+     */
+    public void startFireTimer() {
+        scheduler.scheduleAtFixedRate(() -> {
+
+            int spreadPercentage = 0; // Initialize spread percentage with 0% start
+
+            if (!isActive()) {
+                scheduler.shutdown();
+                return; // If the fire is extinguished, shutdown the timer
+            }
+
+            // Increase the spread space 0-10%
+            Random random = new Random();
+
+            int spreadIncrease = random.nextInt(10); // Generate a random spread increase with 0-10%
+            spreadPercentage =  Math.min(spreadPercentage + spreadIncrease, 100);
+
+            // If the fire is spread, severity is updated +1 with 100% spread increase
+            if (spreadPercentage == 100 && severity < 4) {
+                severity++;
+                spreadPercentage = 0;
+            }
+
+        }, 20, 20, TimeUnit.SECONDS);
     }
 }
