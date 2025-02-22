@@ -35,7 +35,6 @@ public class FireStation {
     }
 
 
-
     public double calculateDistance(float xFire, float yFire) {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
@@ -44,15 +43,16 @@ public class FireStation {
         return trucks > 0;
     }
 
-    public boolean deployTruck(int requiredTrucks) {
-        if (canDeploy()) {
-            if(trucks < requiredTrucks) {
-                trucks = 0;
-            }
-            trucks -= requiredTrucks;
-            return true;
+    // Return the number of needed trucks after deploy
+
+    public int deployTruck(int requiredTrucks) {
+        if (trucks < requiredTrucks) {
+            int temp = requiredTrucks - trucks;
+            trucks = 0;
+            return temp;
         }
-        return false;
+        trucks -= requiredTrucks;
+        return 0;
     }
 
     public void retrieveTruck(int trucks) {

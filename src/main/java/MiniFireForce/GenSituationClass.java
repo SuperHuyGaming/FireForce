@@ -1,17 +1,17 @@
 package MiniFireForce;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFire;
     private final Map<Integer, FireStation> fireStations;
+    private TreeMap<Double, FireStation> distances;
 
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
         this.fireStations = new HashMap<>();
+        this.distances = new TreeMap<>();
     }
 
     public Map<Integer, Fire> getActiveFires() {
@@ -20,6 +20,9 @@ public class GenSituationClass {
 
     public void addActiveFire(Fire fire) {
         this.activeFire.put(fire.getID(), fire);
+        for (FireStation fs : fireStations.values()) {
+            distances.put(fs.calculateDistance(fire.getX(), fire.getY()), fs);
+        }
     }
 
     public Map<Integer, FireStation> getFireStations() {
@@ -42,23 +45,13 @@ public class GenSituationClass {
     }
 
 
-    public FireStation findFireStation(Fire fire) {
-        FireStation nearestStation = null;
-        double minDistance = Double.MAX_VALUE;  // Use double for distance calculation
+    public List<FireStation> findFireStation(Fire fire) {
+        ArrayList<FireStation> nearestStations = new ArrayList<>();
 
-        for (FireStation station : fireStations.values()) {
-            if (!station.canDeploy()) {
-                continue;
-            }
-
-            double distance = station.calculateDistance(fire.getX(), fire.getY());
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                nearestStation = station;
-            }
+        for (Double distance : distances.keySet()) {
+            nearestStations.add(distances.get(distance));
         }
-        return nearestStation; // Returns the closest station or null if none exist
+        return nearestStations; // Returns the list of stations sorted by distances from the fire
     }
 
     public Fire compareFires() {
@@ -75,24 +68,25 @@ public class GenSituationClass {
     }
 
     public void deployFireTrucks(Fire fire) {
-        FireStation station = findFireStation(fire);
 
-        // No active station
-        if (station == null) {
-            return;
+        // Calculate number of needed trucks
+        int trucksNeeded = fire.getSeverity() / 2 + 1;
+        List<FireStation> nearestStations = findFireStation(fire);
+
+        // Continue searching for close stations that have trucks available
+        int stationIndex = 0;
+
+        while (trucksNeeded > 0) {
+            // Record the currently nearest station
+            FireStation nearest = nearestStations.get(stationIndex);
+
+            if (nearest.canDeploy()) {
+                trucksNeeded = nearest.deployTruck(trucksNeeded);
+            } else {
+                stationIndex++;
+            }
         }
-
-        int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
-        station.deployTruck(trucksNeeded);
-        if(trucksNeeded > 0) {
-
-        }
-
-
-        boolean deployed = trucksNeeded == 0;
-        if (deployed) {
-            activeFire.remove(fire.getID());
-        }
+        removeFire(fire);
     }
 
     // Put down a fire and return deployed trucks
