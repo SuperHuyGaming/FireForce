@@ -43,6 +43,4 @@ public class FireStation {
         }
         return false;
     }
-
-
 }
