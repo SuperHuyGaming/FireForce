@@ -44,7 +44,6 @@ public class GenSituationClass {
         activeFire.put(generateFire.getID(), generateFire);
     }
 
-
     public List<FireStation> findFireStation(Fire fire) {
         ArrayList<FireStation> nearestStations = new ArrayList<>();
 
@@ -68,7 +67,6 @@ public class GenSituationClass {
     }
 
     public void deployFireTrucks(Fire fire) {
-
         // Calculate number of needed trucks
         int trucksNeeded = fire.getSeverity() / 2 + 1;
         List<FireStation> nearestStations = findFireStation(fire);
