@@ -6,9 +6,8 @@ package MiniFireForce;
 public class Scenario {
 
 
-
     public Scenario(Fire fire){
 
     }
-
+    private void checkFire(int id){}
 }

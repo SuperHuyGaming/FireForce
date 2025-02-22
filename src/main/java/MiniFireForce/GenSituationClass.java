@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Manages fire emergencies by tracking fires, fire stations, and deploying fire trucks.
- */
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFire;
     private final Map<Integer, FireStation> fireStations;
@@ -33,9 +30,6 @@ public class GenSituationClass {
         this.fireStations.put(fireStation.getID(), fireStation);
     }
 
-    /**
-     * Generates a random fire within a (-1000, 1000) coordinate range and adds it to active fires.
-     */
     public void generateFire() {
         Random random = new Random();
         int x = random.nextInt(-1000, 1000);
@@ -47,14 +41,16 @@ public class GenSituationClass {
         activeFire.put(generateFire.getID(), generateFire);
     }
 
-    /**
-     * Finds the nearest fire station to a given fire.
-     */
-    public FireStation findFireStation(Fire fire) {
+
+    public FireStation findFireStation(Fire fire, int truckCount) {
         FireStation nearestStation = null;
         double minDistance = Double.MAX_VALUE;  // Use double for distance calculation
 
         for (FireStation station : fireStations.values()) {
+//            if (!station.canDeploy(station.getTrucks())) {
+//                continue;
+//            }
+
             double distance = station.calculateDistance(fire.getX(), fire.getY());
 
             if (distance < minDistance) {
@@ -65,9 +61,6 @@ public class GenSituationClass {
         return nearestStation; // Returns the closest station or null if none exist
     }
 
-    /**
-     * Finds the most severe fire, prioritizing older ones in case of ties.
-     */
     public Fire compareFires() {
         Fire mostSevereFire = null;
 
@@ -81,11 +74,8 @@ public class GenSituationClass {
         return mostSevereFire;
     }
 
-    /**
-     * Deploys fire trucks from the nearest station. Removes fire if deployment succeeds.
-     */
-    public void deployFireTrucks(Fire fire) {
-        FireStation station = findFireStation(fire);
+    public void deployFireTrucks(Fire fire, int truckCount) {
+        FireStation station = findFireStation(fire, truckCount);
         if (station == null) {
             return;
         }
@@ -93,11 +83,14 @@ public class GenSituationClass {
         int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
         station.canDeploy(trucksNeeded);
         boolean deployed = station.deployTruck(trucksNeeded);
-
         if (deployed) {
             activeFire.remove(fire.getID());
         }
+    }
 
+    // Put down a fire and return deployed trucks
+    public void removeFire(Fire fire) {
+        activeFire.remove(fire.getID());
     }
 
 
