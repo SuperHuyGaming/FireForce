@@ -42,14 +42,14 @@ public class GenSituationClass {
     }
 
 
-    public FireStation findFireStation(Fire fire, int truckCount) {
+    public FireStation findFireStation(Fire fire) {
         FireStation nearestStation = null;
         double minDistance = Double.MAX_VALUE;  // Use double for distance calculation
 
         for (FireStation station : fireStations.values()) {
-//            if (!station.canDeploy(station.getTrucks())) {
-//                continue;
-//            }
+            if (!station.canDeploy()) {
+                continue;
+            }
 
             double distance = station.calculateDistance(fire.getX(), fire.getY());
 
@@ -74,15 +74,17 @@ public class GenSituationClass {
         return mostSevereFire;
     }
 
-    public void deployFireTrucks(Fire fire, int truckCount) {
-        FireStation station = findFireStation(fire, truckCount);
+    public void deployFireTrucks(Fire fire) {
+        FireStation station = findFireStation(fire);
         if (station == null) {
             return;
         }
 
         int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
-        station.canDeploy(trucksNeeded);
-        boolean deployed = station.deployTruck(trucksNeeded);
+        station.deployTruck(trucksNeeded);
+
+
+        boolean deployed = trucksNeeded == 0;
         if (deployed) {
             activeFire.remove(fire.getID());
         }
@@ -92,6 +94,4 @@ public class GenSituationClass {
     public void removeFire(Fire fire) {
         activeFire.remove(fire.getID());
     }
-
-
 }
