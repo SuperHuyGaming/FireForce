@@ -1,5 +1,6 @@
 package MiniFireForce;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import  java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -29,9 +30,6 @@ public class GenSituationClass {
         this.fireStations.put(fireStation.getID(), fireStation);
     }
 
-
-
-
     public void generateFire(){
     Random random = new Random();
     int x = random.nextInt(-1000, 1000);
@@ -42,6 +40,52 @@ public class GenSituationClass {
     Fire generateFire = new Fire(x, y, severity, time);
     activeFire.put(generateFire.getID(),generateFire);
 }
+
+
+    public FireStation findFireStation(Fire fire){
+        FireStation nearestStation = null;
+        double minDistance = Double.MAX_VALUE;  // Use double for distance calculation
+
+        for (FireStation station : fireStations.values()) {
+            double distance = station.calculateDistance(fire.getX(), fire.getY());
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestStation = station;
+            }
+        }
+        return nearestStation; // Returns the closest station or null if none exist
+    }
+
+    public Fire compareFires() {
+        Fire mostSevereFire = null;
+
+        for (Fire fire : activeFire.values()) {
+            if (mostSevereFire == null ||
+                    fire.getSeverity() > mostSevereFire.getSeverity() ||
+                    (fire.getSeverity() == mostSevereFire.getSeverity() && fire.getTime().isBefore(mostSevereFire.getTime()))) {
+                mostSevereFire = fire;
+            }
+        }
+        return mostSevereFire;
+    }
+
+    public void deployFireTrucks(Fire fire){
+        FireStation station = findFireStation(fire);
+        if(station == null){
+            return;
+        }
+
+        int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
+        station.canDeploy(trucksNeeded);
+        boolean deployed = station.deployTruck(trucksNeeded);
+
+        if (deployed) {
+            activeFire.remove(fire.getID());}
+
+    }
+
+
 
 
 
