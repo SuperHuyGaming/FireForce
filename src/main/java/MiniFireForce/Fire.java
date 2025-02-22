@@ -11,7 +11,6 @@ public class Fire {
 
     /**
      * Constructor for Fire class
-     *
      * @param x        x coordinate
      * @param y        y coordinate
      * @param severity severity of the fire
