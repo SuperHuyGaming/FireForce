@@ -94,7 +94,7 @@ public class Fire {
     }
 
     /**
-     * Remove the fires
+     * Remove the fire
      */
     public void removeFire() {
         this.severity = 0;
