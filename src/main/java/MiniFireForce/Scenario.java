@@ -5,7 +5,7 @@ package MiniFireForce;
  */
 public class Scenario {
 
-
+   private void checkFire(int id)
 
     public Scenario(Fire fire){
 

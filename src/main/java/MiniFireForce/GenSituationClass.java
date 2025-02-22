@@ -1,6 +1,7 @@
 package MiniFireForce;
+
 import java.time.LocalDateTime;
-import  java.util.HashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -29,23 +30,27 @@ public class GenSituationClass {
         this.fireStations.put(fireStation.getID(), fireStation);
     }
 
-    public void generateFire(){
-    Random random = new Random();
-    int x = random.nextInt(-1000, 1000);
-    int y = random.nextInt(-1000, 1000);
-    int severity = random.nextInt(10) + 1;
-    LocalDateTime time = LocalDateTime.now();
+    public void generateFire() {
+        Random random = new Random();
+        int x = random.nextInt(-1000, 1000);
+        int y = random.nextInt(-1000, 1000);
+        int severity = random.nextInt(10) + 1;
+        LocalDateTime time = LocalDateTime.now();
 
-    Fire generateFire = new Fire(x, y, severity, time);
-    activeFire.put(generateFire.getID(),generateFire);
-}
+        Fire generateFire = new Fire(x, y, severity, time);
+        activeFire.put(generateFire.getID(), generateFire);
+    }
 
 
-    public FireStation findFireStation(Fire fire){
+    public FireStation findFireStation(Fire fire, int truckCount) {
         FireStation nearestStation = null;
         double minDistance = Double.MAX_VALUE;  // Use double for distance calculation
 
         for (FireStation station : fireStations.values()) {
+//            if (!station.canDeploy(station.getTrucks())) {
+//                continue;
+//            }
+
             double distance = station.calculateDistance(fire.getX(), fire.getY());
 
             if (distance < minDistance) {
@@ -69,25 +74,24 @@ public class GenSituationClass {
         return mostSevereFire;
     }
 
-    public void deployFireTrucks(Fire fire){
-        FireStation station = findFireStation(fire);
-        if(station == null){
+    public void deployFireTrucks(Fire fire, int truckCount) {
+        FireStation station = findFireStation(fire, truckCount);
+        if (station == null) {
             return;
         }
 
         int trucksNeeded = Math.min(fire.getSeverity() / 2 + 1, station.getTrucks());
         station.canDeploy(trucksNeeded);
         boolean deployed = station.deployTruck(trucksNeeded);
-
         if (deployed) {
-            activeFire.remove(fire.getID());}
-
+            activeFire.remove(fire.getID());
+        }
     }
 
-
-
-
-
+    // Put down a fire and return deployed trucks
+    public void removeFire(Fire fire) {
+        activeFire.remove(fire.getID());
+    }
 
 
 }
