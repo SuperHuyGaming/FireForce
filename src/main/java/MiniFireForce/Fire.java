@@ -92,4 +92,12 @@ public class Fire {
     public void updateSeverity(int newSev) {
         this.severity = newSev;
     }
+
+
+    public void spreadFire() {
+        if (severity < 10) {
+            severity += (int) (Math.random() * 2);  // Increase severity randomly by 0 or 1
+        }
+    }
+    
 }
