@@ -5,7 +5,7 @@ import javafx.util.Pair;
 public class Fire {
     private float x;
     private float y;
-    private String severity;
+    private int severity;
     private LocalDateTime time;
     private static int id;
 
@@ -16,7 +16,7 @@ public class Fire {
      * @param severity severity of the fire
      * @param time     time of the fire
      */
-    public Fire(float x, float y, String severity, LocalDateTime time) {
+    public Fire(float x, float y, int severity, LocalDateTime time) {
         this.x = x;
         this.y = y;
         this.severity = severity;
@@ -54,7 +54,7 @@ public class Fire {
     /**
      * Get the severity of the fire
      */
-    public String getSeverity() {
+    public int getSeverity() {
         return severity;
     }
 
@@ -89,7 +89,7 @@ public class Fire {
     /**
      * Set the severity of the fire
      */
-    public void updateSeverity(String newSev) {
+    public void updateSeverity(int newSev) {
         this.severity = newSev;
     }
 }

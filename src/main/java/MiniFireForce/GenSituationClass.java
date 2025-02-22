@@ -3,7 +3,7 @@ import java.sql.Array;
 import  java.util.*;
 public class GenSituationClass {
     private List<Fire> activeFire;
-    privare List<FireStation> fireStations;
+    private List<FireStation> fireStations;
 
     public GenSituationClass(){
         this.activeFire = new ArrayList<>();
@@ -31,7 +31,7 @@ public class GenSituationClass {
     int severity = random.nextInt(10) + 1;
     String location = map[random.nextInt(map.length)];
 
-    Fire newFire =
+    // Fire newFire =
 
 
 
