@@ -7,7 +7,7 @@ public class Fire {
     private float y;
     private int severity;
     private LocalDateTime time;
-    private static int id;
+    private static int id = 0;
 
     /**
      * Constructor for Fire class
