@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class GenSituationClass {
-    private Map<Integer, Fire> activeFire;
-    private Map<Integer, FireStation> fireStations;
+    private final Map<Integer, Fire> activeFire;
+    private final Map<Integer, FireStation> fireStations;
 
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
