@@ -1,22 +1,22 @@
 package MiniFireForce;
 
-import java.util.PriorityQueue;
-
 public class FireStation {
-    private int xStation;
-    private int yStation;
+    private float xStation;
+    private float yStation;
     private int trucks;
-    private PriorityQueue<Integer> queue;
+    // private PriorityQueue<Integer> queue;
+    private static int id;
 
     // Take the location algorithm of Google Maps to estimate the distance
 
-    public FireStation(int xStation, int yStation, int trucks) {
+    public FireStation(float xStation, float yStation, int trucks) {
         this.xStation = xStation;
         this.yStation = yStation;
         this.trucks = trucks;
+        id++;
     }
 
-    public double calculateDistance(int xFire, int yFire) {
+    public double calculateDistance(float xFire, float yFire) {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
 
