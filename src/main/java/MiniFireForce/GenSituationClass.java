@@ -10,10 +10,26 @@ public class GenSituationClass {
     private final Map<Integer, Fire> activeFire;
     private final Map<Integer, FireStation> fireStations;
     private TreeMap<Double, FireStation> distances;
-    private final ScheduledExecutorService scheduler;
-    private EventLogger eventLogger;  
-    private volatile boolean paused = false; // New: pause flag
+    private ScheduledExecutorService scheduler;
 
+    /**
+     * Spread fire to a nearby location as time flies
+     */
+    private void spreadFire(Fire fire) {
+        Random random = new Random();
+        int newX = (int) fire.getX() + random.nextInt(100) - 50;
+        int newY = (int) fire.getX() + random.nextInt(100) - 50;
+        int newSeverity = Math.max(1, fire.getSeverity() - 1); // New fire is slightly weaker
+        LocalDateTime newTime = LocalDateTime.now();
+
+        Fire newFire = new Fire(newX, newY, newSeverity, newTime);
+        addActiveFire(newFire);
+        System.out.println("🔥 New fire spread to (" + newX + ", " + newY + ")");
+    }
+
+    /**
+     * Constructor for the simulation
+     */
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
         this.fireStations = new HashMap<>();
@@ -22,28 +38,18 @@ public class GenSituationClass {
         startFireTimer(); // Start automatic fire spreading
     }
 
-    // New: Set the event logger so other parts of the app can log events.
-    public void setEventLogger(EventLogger logger) {
-        this.eventLogger = logger;
-    }
-
-    // New: Set the paused flag.
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-        if (eventLogger != null) {
-            eventLogger.log(paused ? "Simulation paused." : "Simulation resumed.");
-        }
-    }
-
-    // New: Return whether the simulation is paused.
-    public boolean isPaused() {
-        return paused;
-    }
-
+    /**
+     * This method returns a map of fires that are not extinguished
+     * @return active fires
+     */
     public Map<Integer, Fire> getActiveFires() {
         return activeFire;
     }
 
+    /**
+     * Generate new simulated fire
+     * @param fire new fire
+     */
     public void addActiveFire(Fire fire) {
         this.activeFire.put(fire.getID(), fire);
         for (FireStation fs : fireStations.values()) {
@@ -51,6 +57,9 @@ public class GenSituationClass {
         }
     }
 
+    /**
+     * Demonstrate the web of stations
+     */
     public Map<Integer, FireStation> getFireStations() {
         return fireStations;
     }
@@ -61,8 +70,13 @@ public class GenSituationClass {
 
     public void generateFire() {
         Random random = new Random();
+<<<<<<< HEAD
         int x = random.nextInt(2000)-1000;
         int y = random.nextInt(2000)-1000;
+=======
+        int x = random.nextInt(2000) - 1000;
+        int y = random.nextInt(2000) - 1000;
+>>>>>>> bbf47644a6855c8a436b03d7c55f51910c927b34
         int severity = random.nextInt(10) + 1;
         LocalDateTime time = LocalDateTime.now();
 
@@ -72,6 +86,7 @@ public class GenSituationClass {
 
     public List<FireStation> findFireStation(Fire fire) {
         ArrayList<FireStation> nearestStations = new ArrayList<>();
+
         for (Double distance : distances.keySet()) {
             nearestStations.add(distances.get(distance));
         }
@@ -80,6 +95,7 @@ public class GenSituationClass {
 
     public Fire compareFires() {
         Fire mostSevereFire = null;
+
         for (Fire fire : activeFire.values()) {
             if (mostSevereFire == null ||
                     fire.getSeverity() > mostSevereFire.getSeverity() ||
@@ -94,10 +110,14 @@ public class GenSituationClass {
         // Calculate number of needed trucks
         int trucksNeeded = fire.getSeverity() / 2 + 1;
         List<FireStation> nearestStations = findFireStation(fire);
+
+        // Continue searching for close stations that have trucks available
         int stationIndex = 0;
+
         while (trucksNeeded > 0) {
             // Record the currently nearest station
             FireStation nearest = nearestStations.get(stationIndex);
+
             if (nearest.canDeploy()) {
                 trucksNeeded = nearest.deployTruck(trucksNeeded);
             } else {
@@ -113,7 +133,7 @@ public class GenSituationClass {
     }
 
     /**
-     * Start the fire timer, each 20 seconds fires may spread.
+     * Start the fire time, each 20 seconds 0-10% spread increase is implemented
      */
     public void startFireTimer() {
         scheduler.scheduleAtFixedRate(() -> {
@@ -121,24 +141,16 @@ public class GenSituationClass {
                 scheduler.shutdown();
                 return;
             }
+
             Random random = new Random();
             for (Fire fire : new ArrayList<>(activeFire.values())) {
                 fire.spreadFire();
+
+                // **New Fire Spread Mechanism**
                 if (random.nextDouble() < 0.3) {  // 30% chance to spread
                     spreadFire(fire);
                 }
             }
         }, 20, 20, TimeUnit.SECONDS);
-    }
-    
-    private void spreadFire(Fire fire) {
-        Random random = new Random();
-        int newX = (int) fire.getX() + random.nextInt(101) - 50;
-        int newY = (int) fire.getY() + random.nextInt(101) - 50;
-        int newSeverity = Math.max(1, fire.getSeverity() - 1);
-        LocalDateTime newTime = LocalDateTime.now();
-        Fire newFire = new Fire(newX, newY, newSeverity, newTime);
-        addActiveFire(newFire);
-        System.out.println("🔥 New fire spread to (" + newX + ", " + newY + ")");
     }
 }
