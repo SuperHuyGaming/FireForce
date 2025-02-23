@@ -20,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import MiniFireForce.Fire;
 import MiniFireForce.GenSituationClass;
+import java.io.InputStream;
 
 public class App extends Application {
 
@@ -40,8 +41,12 @@ public class App extends Application {
         // Initialize the simulation class
         genSituation = new GenSituationClass();
 
-        // Load background image (ensure this file exists in /images/background.png)
-        Image backgroundImage = new Image(getClass().getResourceAsStream("/images/background.png"));
+        // Load background image (ensure this file exists in /images/background.png in your resources)
+        InputStream bgStream = getClass().getResourceAsStream("/images/background.png");
+        if (bgStream == null) {
+            throw new IllegalArgumentException("Background image not found at '/images/background.png'");
+        }
+        Image backgroundImage = new Image(bgStream);
         BackgroundImage bgImage = new BackgroundImage(
                 backgroundImage,
                 BackgroundRepeat.NO_REPEAT,
@@ -52,8 +57,12 @@ public class App extends Application {
         StackPane root = new StackPane();
         root.setBackground(new Background(bgImage));
 
-        // Set the stage icon (ensure this file exists in /images/icon.png)
-        Image icon = new Image(getClass().getResourceAsStream("/images/icon.png"));
+        // Set the stage icon (ensure this file exists in /images/icon.png in your resources)
+        InputStream iconStream = getClass().getResourceAsStream("losangeles.png");
+        if (iconStream == null) {
+            throw new IllegalArgumentException("Icon image not found at 'losangeles.png'");
+        }
+        Image icon = new Image(iconStream);
         primaryStage.getIcons().add(icon);
 
         // Create canvas for drawing simulation graphics
