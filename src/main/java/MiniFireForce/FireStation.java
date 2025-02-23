@@ -4,18 +4,22 @@ public class FireStation {
     private float xStation;
     private float yStation;
     private int trucks;
-    private int id;               // Instance-specific id
-    private static int counter = 0; // Static counter to generate unique ids
+
+    // private PriorityQueue<Integer> queue;
+    private static int id;
+
+    // Take the location algorithm of Google Maps to estimate the distance
 
     public FireStation(float xStation, float yStation, int trucks) {
         this.xStation = xStation;
         this.yStation = yStation;
         this.trucks = trucks;
-        this.id = ++counter;      // Assign a unique id to this instance
+        id++;
     }
 
+    //Getters
     public int getID() {
-        return id;
+        return FireStation.id;
     }
 
     public float getX() {
@@ -38,6 +42,7 @@ public class FireStation {
         return trucks > 0;
     }
 
+    // Return the number of needed trucks after deploy
     public int deployTruck(int requiredTrucks) {
         if (trucks < requiredTrucks) {
             int temp = requiredTrucks - trucks;

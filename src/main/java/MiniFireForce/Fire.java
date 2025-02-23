@@ -9,15 +9,14 @@ public class Fire {
     private float y;
     private int severity;
     private LocalDateTime time;
-    private  int id = 0;
-    private static int counter = 0; 
+    private static int id = 0;
 
     public Fire(float x, float y, int severity, LocalDateTime time) {
         this.x = x;
         this.y = y;
         this.severity = severity;
         this.time = time;
-        id=++counter;
+        id++;
     }
 
     public int getID() {
@@ -66,8 +65,4 @@ public class Fire {
             severity += (int) (Math.random() * 2);  // Increase severity randomly by 0 or 1
         }
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 60153862d96b6414b79ba38357bf6b0109acd716
 }
