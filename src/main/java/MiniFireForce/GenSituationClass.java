@@ -70,8 +70,13 @@ public class GenSituationClass {
 
     public void generateFire() {
         Random random = new Random();
+<<<<<<< HEAD
+        int x = random.nextInt(2000)-1000;
+        int y = random.nextInt(2000)-1000;
+=======
         int x = random.nextInt(2000) - 1000;
         int y = random.nextInt(2000) - 1000;
+>>>>>>> bbf47644a6855c8a436b03d7c55f51910c927b34
         int severity = random.nextInt(10) + 1;
         LocalDateTime time = LocalDateTime.now();
 
