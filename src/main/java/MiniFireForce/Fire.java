@@ -99,5 +99,5 @@ public class Fire {
             severity += (int) (Math.random() * 2);  // Increase severity randomly by 0 or 1
         }
     }
-    
+
 }
