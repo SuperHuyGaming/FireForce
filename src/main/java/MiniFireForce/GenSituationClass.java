@@ -2,6 +2,7 @@ package MiniFireForce;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -11,10 +12,27 @@ public class GenSituationClass {
     private TreeMap<Double, FireStation> distances;
     private ScheduledExecutorService scheduler;
 
+    /**
+     * Spread fire to a nearby location
+     */
+    private void spreadFire(Fire fire) {
+        Random random = new Random();
+        int newX = (int) fire.getX() + random.nextInt(-50, 50);
+        int newY = (int) fire.getY() + random.nextInt(-50, 50);
+        int newSeverity = Math.max(1, fire.getSeverity() - 1); // New fire is slightly weaker
+        LocalDateTime newTime = LocalDateTime.now();
+
+        Fire newFire = new Fire(newX, newY, newSeverity, newTime);
+        addActiveFire(newFire);
+        System.out.println("🔥 New fire spread to (" + newX + ", " + newY + ")");
+    }
+
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
         this.fireStations = new HashMap<>();
         this.distances = new TreeMap<>();
+        this.scheduler = Executors.newSingleThreadScheduledExecutor();
+        startFireTimer(); // Start automatic fire spreading
     }
 
     public Map<Integer, Fire> getActiveFires() {
@@ -100,26 +118,20 @@ public class GenSituationClass {
      */
     public void startFireTimer() {
         scheduler.scheduleAtFixedRate(() -> {
-
-            int spreadPercentage = 0; // Initialize spread percentage with 0% start
-
-            if (!isActive()) {
+            if (activeFire.isEmpty()) {
                 scheduler.shutdown();
-                return; // If the fire is extinguished, shutdown the timer
+                return;
             }
 
-            // Increase the spread space 0-10%
             Random random = new Random();
+            for (Fire fire : new ArrayList<>(activeFire.values())) {
+                fire.spreadFire();
 
-            int spreadIncrease = random.nextInt(10); // Generate a random spread increase with 0-10%
-            spreadPercentage =  Math.min(spreadPercentage + spreadIncrease, 100);
-
-            // If the fire is spread, severity is updated +1 with 100% spread increase
-            if (spreadPercentage == 100 && severity < 4) {
-                severity++;
-                spreadPercentage = 0;
+                // **New Fire Spread Mechanism**
+                if (random.nextDouble() < 0.3) {  // 30% chance to spread
+                    spreadFire(fire);
+                }
             }
-
         }, 20, 20, TimeUnit.SECONDS);
     }
 }
