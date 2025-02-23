@@ -301,6 +301,7 @@ public class GenSituationClass {
             }
         }, 20, 20, TimeUnit.SECONDS);
     }
+<<<<<<< HEAD
     
     private void spreadFire(Fire fire) {
         Random random = new Random();
@@ -325,3 +326,6 @@ public class GenSituationClass {
         return activeFire;
     }
 }
+=======
+}
+>>>>>>> 60153862d96b6414b79ba38357bf6b0109acd716

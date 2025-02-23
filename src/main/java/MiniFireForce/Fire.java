@@ -66,4 +66,8 @@ public class Fire {
             severity += (int) (Math.random() * 2);  // Increase severity randomly by 0 or 1
         }
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 60153862d96b6414b79ba38357bf6b0109acd716
 }
