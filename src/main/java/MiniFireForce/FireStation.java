@@ -4,18 +4,18 @@ public class FireStation {
     private float xStation;
     private float yStation;
     private int trucks;
-    private  int id = 0;
-    private static int count;
+    private static int counter = 0;
+    private final int id;
 
     public FireStation(float xStation, float yStation, int trucks) {
         this.xStation = xStation;
         this.yStation = yStation;
         this.trucks = trucks;
-        id= ++count;
+        id = ++counter;
     }
 
     public int getID() {
-        return this.id;
+        return id;
     }
 
     public float getX() {
@@ -31,26 +31,26 @@ public class FireStation {
     }
 
     public double calculateDistance(float xFire, float yFire) {
-        return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
+        double dx = xFire - xStation;
+        double dy = yFire - yStation;
+        return Math.sqrt(dx*dx + dy*dy);
     }
 
     public boolean canDeploy() {
         return trucks > 0;
     }
 
-    // Deploy the given number of trucks.
-    // If not enough trucks are available, set trucks to 0 and return the extra needed.
     public int deployTruck(int requiredTrucks) {
         if (trucks < requiredTrucks) {
-            int temp = requiredTrucks - trucks;
+            int needed = requiredTrucks - trucks;
             trucks = 0;
-            return temp;
+            return needed;
         }
         trucks -= requiredTrucks;
         return 0;
     }
 
-    public void retrieveTruck(int trucks) {
-        this.trucks += trucks;
+    public void retrieveTruck(int trucksReturned) {
+        trucks += trucksReturned;
     }
 }

@@ -19,9 +19,10 @@ public class FireForceGUI extends JFrame {
     private JButton pauseButton;
     private Timer refreshTimer;
     private Timer clockTimer;
+    private Timer animationTimer;
     private JTabbedPane tabbedPane;
     private MapPanel mapPanel;
-    
+
     public FireForceGUI() {
         // Create simulation and set event logger
         situation = new GenSituationClass();
@@ -30,50 +31,51 @@ public class FireForceGUI extends JFrame {
         initComponents();
         startClock();
         startRefresh();
-        
+        startAnimation();
+
         setVisible(true);
     }
-    
+
     private void initComponents() {
         setTitle("Fire Force Dashboard");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000, 600);
         setLayout(new BorderLayout());
-        
+
         // Top Panel: Pause/Resume + Clock
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
         pauseButton = new JButton("Pause");
         pauseButton.addActionListener((ActionEvent e) -> togglePause());
         topPanel.add(pauseButton);
-        
+
         clockLabel = new JLabel("Time: ");
         clockLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         topPanel.add(clockLabel);
-        
+
         add(topPanel, BorderLayout.NORTH);
-        
+
         tabbedPane = new JTabbedPane();
-        
+
         // Dashboard tab
         JPanel dashboardPanel = new JPanel(new BorderLayout());
         JPanel tablePanel = new JPanel(new GridLayout(1, 2));
-        
+
         stationModel = new DefaultTableModel(new Object[]{"ID","X","Y","Trucks"}, 0);
         stationTable = new JTable(stationModel);
         JScrollPane stationScroll = new JScrollPane(stationTable);
         stationScroll.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Fire Stations", TitledBorder.CENTER, TitledBorder.TOP));
         tablePanel.add(stationScroll);
-        
+
         fireModel = new DefaultTableModel(new Object[]{"ID","X","Y","Severity","Time"}, 0);
         fireTable = new JTable(fireModel);
         JScrollPane fireScroll = new JScrollPane(fireTable);
         fireScroll.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createEtchedBorder(), "Active Fires", TitledBorder.CENTER, TitledBorder.TOP));
         tablePanel.add(fireScroll);
-        
+
         dashboardPanel.add(tablePanel, BorderLayout.CENTER);
-        
+
         logArea = new JTextArea();
         logArea.setEditable(false);
         JScrollPane logScroll = new JScrollPane(logArea);
@@ -81,28 +83,28 @@ public class FireForceGUI extends JFrame {
                 BorderFactory.createEtchedBorder(), "Event Log", TitledBorder.CENTER, TitledBorder.TOP));
         logScroll.setPreferredSize(new Dimension(1000, 150));
         dashboardPanel.add(logScroll, BorderLayout.SOUTH);
-        
+
         tabbedPane.addTab("Dashboard", dashboardPanel);
-        
+
         // Map tab
         mapPanel = new MapPanel(situation);
         JPanel mapTab = new JPanel(new BorderLayout());
         mapTab.add(mapPanel, BorderLayout.CENTER);
         tabbedPane.addTab("Map", mapTab);
-        
+
         add(tabbedPane, BorderLayout.CENTER);
     }
-    
+
     private void togglePause() {
         boolean p = situation.isPaused();
         situation.setPaused(!p);
         pauseButton.setText(p ? "Pause" : "Resume");
     }
-    
+
     private void appendLog(String msg) {
         logArea.append(msg + "\n");
     }
-    
+
     private void startClock() {
         clockTimer = new Timer(1000, (ActionEvent e) -> {
             LocalDateTime now = LocalDateTime.now();
@@ -111,12 +113,19 @@ public class FireForceGUI extends JFrame {
         });
         clockTimer.start();
     }
-    
+
     private void startRefresh() {
+        // Update tables every 2s
         refreshTimer = new Timer(2000, (ActionEvent e) -> refreshTables());
         refreshTimer.start();
     }
-    
+
+    private void startAnimation() {
+        // Repaint map frequently for smooth truck animation
+        animationTimer = new Timer(50, e -> mapPanel.repaint());
+        animationTimer.start();
+    }
+
     private void refreshTables() {
         // Station table
         stationModel.setRowCount(0);
@@ -125,7 +134,7 @@ public class FireForceGUI extends JFrame {
                 st.getID(), st.getX(), st.getY(), st.getTrucks()
             });
         }
-        
+
         // Fire table
         fireModel.setRowCount(0);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -134,11 +143,8 @@ public class FireForceGUI extends JFrame {
                 f.getID(), f.getX(), f.getY(), f.getSeverity(), f.getTime().format(dtf)
             });
         }
-        
-        // Repaint the map
-        mapPanel.repaint();
     }
-    
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(FireForceGUI::new);
     }

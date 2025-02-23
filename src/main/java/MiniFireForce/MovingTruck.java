@@ -3,26 +3,27 @@ package MiniFireForce;
 public class MovingTruck {
     public enum State { TO_FIRE, EXTINGUISHING, RETURNING }
 
-    private int stationID;
-    private int fireID;
+    private final int stationID;
+    private final int fireID;
     private double startX, startY;
-    private double destinationX, destinationY;
+    private double destX, destY;
     private long startTime;
-    private long travelDuration;
+    private long travelDurationMs;
     private State state;
 
     public MovingTruck(int stationID, int fireID,
                        double startX, double startY,
-                       double destinationX, double destinationY,
-                       long travelDuration, State state) {
+                       double destX, double destY,
+                       long travelDurationMs,
+                       State initialState) {
         this.stationID = stationID;
         this.fireID = fireID;
         this.startX = startX;
         this.startY = startY;
-        this.destinationX = destinationX;
-        this.destinationY = destinationY;
-        this.travelDuration = travelDuration;
-        this.state = state;
+        this.destX = destX;
+        this.destY = destY;
+        this.travelDurationMs = travelDurationMs;
+        this.state = initialState;
         this.startTime = System.currentTimeMillis();
     }
 
@@ -32,12 +33,12 @@ public class MovingTruck {
     }
 
     public void setDestination(double x, double y) {
-        this.destinationX = x;
-        this.destinationY = y;
+        this.destX = x;
+        this.destY = y;
     }
 
     public void setTravelDuration(long durationMs) {
-        this.travelDuration = durationMs;
+        this.travelDurationMs = durationMs;
     }
 
     public void resetStartTime() {
@@ -59,20 +60,22 @@ public class MovingTruck {
     // Return current X (linear interpolation)
     public double getCurrentX() {
         if (state == State.EXTINGUISHING) {
-            return destinationX;
+            return destX; // parked at the fire
         }
-        double t = (System.currentTimeMillis() - startTime) / (double) travelDuration;
+        double elapsed = System.currentTimeMillis() - startTime;
+        double t = elapsed / (double) travelDurationMs;
         if (t > 1) t = 1;
-        return startX + (destinationX - startX) * t;
+        return startX + (destX - startX) * t;
     }
 
     // Return current Y (linear interpolation)
     public double getCurrentY() {
         if (state == State.EXTINGUISHING) {
-            return destinationY;
+            return destY;
         }
-        double t = (System.currentTimeMillis() - startTime) / (double) travelDuration;
+        double elapsed = System.currentTimeMillis() - startTime;
+        double t = elapsed / (double) travelDurationMs;
         if (t > 1) t = 1;
-        return startY + (destinationY - startY) * t;
+        return startY + (destY - startY) * t;
     }
 }

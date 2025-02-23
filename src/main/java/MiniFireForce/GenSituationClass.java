@@ -7,35 +7,34 @@ import java.util.concurrent.*;
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFires;
     private final Map<Integer, FireStation> stations;
-    private final List<MovingTruck> movingTrucks; // trucks in motion
+    private final List<MovingTruck> movingTrucks; // For animation
     private ScheduledExecutorService scheduler;
     private EventLogger eventLogger;
     private volatile boolean paused = false;
 
-    // For controlling truck speed (in "units" per second)
-    private static final double TRUCK_SPEED = 50.0;
+    // We'll spawn stations, fires, etc. continuously
+    private static final double TRUCK_SPEED = 50.0; // units per second
 
     public GenSituationClass() {
         activeFires = new HashMap<>();
         stations = new HashMap<>();
         movingTrucks = new ArrayList<>();
-
-        // Start tasks
         scheduler = Executors.newScheduledThreadPool(4);
+
         startStationSpawner();
         startFireSpawner();
         startAutoDeploy();
         startFireTimer();
     }
 
-    // ================== Event Logger and Pause ===================
+    // ========== Logging and Pause ==========
 
     public void setEventLogger(EventLogger logger) {
         this.eventLogger = logger;
     }
 
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public void setPaused(boolean p) {
+        paused = p;
         if (eventLogger != null) {
             eventLogger.log(paused ? "Simulation paused." : "Simulation resumed.");
         }
@@ -45,7 +44,7 @@ public class GenSituationClass {
         return paused;
     }
 
-    // ================== Accessors ===================
+    // ========== Accessors ==========
 
     public Map<Integer, Fire> getActiveFires() {
         return activeFires;
@@ -61,28 +60,27 @@ public class GenSituationClass {
         }
     }
 
-    // ================== Spawning Logic ===================
+    // ========== Station, Fire Spawners ==========
 
     private void startStationSpawner() {
-        // Add a new FireStation every 30 seconds
+        // Add a new station every 30s
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused) {
-                Random rand = new Random();
-                float x = rand.nextInt(2000) - 1000;
-                float y = rand.nextInt(2000) - 1000;
-                int trucks = rand.nextInt(5) + 1; // 1..5 trucks
+                Random r = new Random();
+                float x = r.nextInt(2000) - 1000;
+                float y = r.nextInt(2000) - 1000;
+                int trucks = r.nextInt(5) + 1; // 1..5
                 FireStation st = new FireStation(x, y, trucks);
                 stations.put(st.getID(), st);
                 if (eventLogger != null) {
-                    eventLogger.log("New station spawned: ID " + st.getID()
-                            + " at (" + st.getX() + ", " + st.getY() + ") with " + trucks + " trucks");
+                    eventLogger.log("New station: ID " + st.getID() + " at (" + x + ", " + y + "), trucks=" + trucks);
                 }
             }
         }, 0, 30, TimeUnit.SECONDS);
     }
 
     private void startFireSpawner() {
-        // Add a new Fire every 10 seconds
+        // Add a new Fire every 10s
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused) {
                 generateFire();
@@ -91,149 +89,62 @@ public class GenSituationClass {
     }
 
     public void generateFire() {
-        Random rand = new Random();
-        int x = rand.nextInt(2000) - 1000;
-        int y = rand.nextInt(2000) - 1000;
-        int severity = rand.nextInt(10) + 1;
-        LocalDateTime time = LocalDateTime.now();
-        Fire fire = new Fire(x, y, severity, time);
-        activeFires.put(fire.getID(), fire);
+        Random r = new Random();
+        int x = r.nextInt(2000) - 1000;
+        int y = r.nextInt(2000) - 1000;
+        int sev = r.nextInt(10) + 1;
+        LocalDateTime now = LocalDateTime.now();
+        Fire f = new Fire(x, y, sev, now);
+        activeFires.put(f.getID(), f);
         if (eventLogger != null) {
-            eventLogger.log("New fire spawned: ID " + fire.getID()
-                    + " at (" + x + ", " + y + "), severity=" + severity);
+            eventLogger.log("New Fire: ID " + f.getID() + " at (" + x + ", " + y + "), sev=" + sev);
         }
     }
 
-    // ================== Fire Timer (Spread) ===================
+    // ========== Fire Timer (Spread) ==========
 
     public void startFireTimer() {
-        // Fires spread every 20 seconds
+        // Every 20s, existing fires may spread or spawn a new one
         scheduler.scheduleAtFixedRate(() -> {
             if (paused || activeFires.isEmpty()) return;
             Random rand = new Random();
             for (Fire f : new ArrayList<>(activeFires.values())) {
                 f.spreadFire();
                 if (eventLogger != null) {
-                    eventLogger.log("Fire ID " + f.getID() + " is spreading (severity=" + f.getSeverity() + ")");
+                    eventLogger.log("Fire ID " + f.getID() + " is spreading, severity=" + f.getSeverity());
                 }
                 if (rand.nextDouble() < 0.3) {
-                    spreadFire(f);
+                    spawnNearbyFire(f);
                 }
             }
         }, 20, 20, TimeUnit.SECONDS);
     }
 
-    private void spreadFire(Fire parent) {
-        // spawn a new fire near the old one
+    private void spawnNearbyFire(Fire oldFire) {
         Random rand = new Random();
-        int newX = (int) parent.getX() + rand.nextInt(101) - 50;
-        int newY = (int) parent.getY() + rand.nextInt(101) - 50;
-        int newSev = Math.max(1, parent.getSeverity() - 1);
-        Fire newFire = new Fire(newX, newY, newSev, LocalDateTime.now());
-        activeFires.put(newFire.getID(), newFire);
+        int nx = (int)oldFire.getX() + rand.nextInt(101) - 50;
+        int ny = (int)oldFire.getY() + rand.nextInt(101) - 50;
+        int newSev = Math.max(1, oldFire.getSeverity() - 1);
+        Fire nf = new Fire(nx, ny, newSev, LocalDateTime.now());
+        activeFires.put(nf.getID(), nf);
         if (eventLogger != null) {
-            eventLogger.log("Fire spread -> new Fire ID " + newFire.getID()
-                    + " at (" + newX + ", " + newY + ")");
+            eventLogger.log("Fire spread -> new Fire ID " + nf.getID() + " at (" + nx + ", " + ny + ")");
         }
     }
 
-    // ================== Deployment (Auto-Extinguish) ===================
+    // ========== Deploy ==========
 
     private void startAutoDeploy() {
-        // Every 15 seconds, deploy trucks for all active fires
+        // Every 15 seconds, automatically extinguish each active fire with 1 truck
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused && !activeFires.isEmpty()) {
                 for (Fire f : new ArrayList<>(activeFires.values())) {
-                    deployFireTrucks(f);
+                    deploySingleTruck(f);
                 }
             }
         }, 5, 15, TimeUnit.SECONDS);
     }
 
-    public void deployFireTrucks(Fire fire) {
-        // If already extinguished, skip
-        if (!activeFires.containsKey(fire.getID())) return;
-
-        // We'll send exactly 1 truck for simplicity
-        FireStation station = findNearestStation(fire);
-        if (station == null) return; // no stations?
-        if (!station.canDeploy()) return;
-
-        station.deployTruck(1);
-        if (eventLogger != null) {
-            eventLogger.log("Station " + station.getID() + " deploying truck to Fire " + fire.getID());
-        }
-
-        // Travel time
-        double distance = station.calculateDistance(fire.getX(), fire.getY());
-        double travelTimeSec = Math.max(distance / TRUCK_SPEED, 3); // min 3s
-        long travelMs = (long)(travelTimeSec * 1000);
-
-        // Create a "MovingTruck" object for animation
-        MovingTruck mt = new MovingTruck(
-                station.getID(), fire.getID(),
-                station.getX(), station.getY(),
-                fire.getX(), fire.getY(),
-                travelMs,
-                MovingTruck.State.TO_FIRE
-        );
-        synchronized (movingTrucks) {
-            movingTrucks.add(mt);
-        }
-
-        // Schedule arrival
-        scheduler.schedule(() -> {
-            // Arrived at the fire
-            synchronized (movingTrucks) {
-                mt.setState(MovingTruck.State.EXTINGUISHING);
-            }
-            if (eventLogger != null) {
-                eventLogger.log("Truck arrived at Fire " + fire.getID() + ", extinguishing...");
-            }
-
-            // Extinguish time (for simplicity, 5s)
-            long extinguishMs = 5000;
-            scheduler.schedule(() -> {
-                // Fire is extinguished
-                activeFires.remove(fire.getID());
-                if (eventLogger != null) {
-                    eventLogger.log("Fire " + fire.getID() + " extinguished, truck returning to station " + station.getID());
-                }
-
-                // Return trip
-                synchronized (movingTrucks) {
-                    movingTrucks.remove(mt);
-                }
-                // Create a new truck object for the return trip
-                MovingTruck rt = new MovingTruck(
-                        station.getID(), fire.getID(),
-                        fire.getX(), fire.getY(),
-                        station.getX(), station.getY(),
-                        travelMs,
-                        MovingTruck.State.RETURNING
-                );
-                synchronized (movingTrucks) {
-                    movingTrucks.add(rt);
-                }
-
-                // Once it returns
-                scheduler.schedule(() -> {
-                    synchronized (movingTrucks) {
-                        movingTrucks.remove(rt);
-                    }
-                    station.retrieveTruck(1);
-                    if (eventLogger != null) {
-                        eventLogger.log("Truck returned to Station " + station.getID()
-                                + ". Station now has " + station.getTrucks() + " trucks.");
-                    }
-                }, travelMs, TimeUnit.MILLISECONDS);
-
-            }, extinguishMs, TimeUnit.MILLISECONDS);
-
-        }, travelMs, TimeUnit.MILLISECONDS);
-    }
-
-    // A helper method to find the single nearest station
     private FireStation findNearestStation(Fire fire) {
         FireStation nearest = null;
         double minDist = Double.MAX_VALUE;
@@ -245,5 +156,89 @@ public class GenSituationClass {
             }
         }
         return nearest;
+    }
+
+    public void deploySingleTruck(Fire fire) {
+        // If the fire is already gone, skip
+        if (!activeFires.containsKey(fire.getID())) return;
+
+        // Find the nearest station
+        FireStation st = findNearestStation(fire);
+        if (st == null) return; // no stations
+        if (!st.canDeploy()) return; // no trucks
+
+        st.deployTruck(1); // send exactly 1 truck
+        if (eventLogger != null) {
+            eventLogger.log("Station " + st.getID() + " sends 1 truck to Fire " + fire.getID());
+        }
+
+        // Calculate travel time
+        double distance = st.calculateDistance(fire.getX(), fire.getY());
+        double travelTimeSec = Math.max(distance / TRUCK_SPEED, 3); // min 3s
+        long travelMs = (long)(travelTimeSec * 1000);
+
+        // Create a moving truck to animate
+        MovingTruck mt = new MovingTruck(
+                st.getID(), fire.getID(),
+                st.getX(), st.getY(),
+                fire.getX(), fire.getY(),
+                travelMs,
+                MovingTruck.State.TO_FIRE
+        );
+        synchronized (movingTrucks) {
+            movingTrucks.add(mt);
+        }
+
+        // Schedule arrival
+        scheduler.schedule(() -> {
+            // Truck arrived at fire
+            synchronized (movingTrucks) {
+                mt.setState(MovingTruck.State.EXTINGUISHING);
+            }
+            if (eventLogger != null) {
+                eventLogger.log("Truck arrived at Fire " + fire.getID() + " -> extinguishing...");
+            }
+
+            // Extinguish for 5s
+            long extinguishMs = 5000;
+            scheduler.schedule(() -> {
+                // Remove the fire
+                activeFires.remove(fire.getID());
+                if (eventLogger != null) {
+                    eventLogger.log("Fire " + fire.getID() + " extinguished -> truck returning to station " + st.getID());
+                }
+
+                // Move truck from the map
+                synchronized (movingTrucks) {
+                    movingTrucks.remove(mt);
+                }
+
+                // Create a new truck object for returning
+                MovingTruck returningTruck = new MovingTruck(
+                        st.getID(), fire.getID(),
+                        fire.getX(), fire.getY(),
+                        st.getX(), st.getY(),
+                        travelMs,
+                        MovingTruck.State.RETURNING
+                );
+                synchronized (movingTrucks) {
+                    movingTrucks.add(returningTruck);
+                }
+
+                // Once it returns
+                scheduler.schedule(() -> {
+                    synchronized (movingTrucks) {
+                        movingTrucks.remove(returningTruck);
+                    }
+                    st.retrieveTruck(1);
+                    if (eventLogger != null) {
+                        eventLogger.log("Truck returned to Station " + st.getID()
+                                + " -> station now has " + st.getTrucks() + " trucks");
+                    }
+                }, travelMs, TimeUnit.MILLISECONDS);
+
+            }, extinguishMs, TimeUnit.MILLISECONDS);
+
+        }, travelMs, TimeUnit.MILLISECONDS);
     }
 }

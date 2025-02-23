@@ -9,18 +9,19 @@ public class Fire {
     private float y;
     private int severity;
     private LocalDateTime time;
-    private  int id = 0;
-    private static int count;
+    private static int count = 0;
+    private final int id;
+
     public Fire(float x, float y, int severity, LocalDateTime time) {
         this.x = x;
         this.y = y;
         this.severity = severity;
         this.time = time;
-        id=++count;
+        id = ++count;
     }
 
     public int getID() {
-        return this.id;
+        return id;
     }
 
     public float getX() {
@@ -31,7 +32,6 @@ public class Fire {
         return y;
     }
 
-    // Returns the coordinate as a Pair (using AbstractMap.SimpleEntry)
     public Map.Entry<Float, Float> getXY() {
         return new AbstractMap.SimpleEntry<>(x, y);
     }
