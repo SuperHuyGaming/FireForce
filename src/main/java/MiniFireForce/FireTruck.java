@@ -19,16 +19,14 @@ public class FireTruck {
         return this.extinguishTime;
     }
 
+    // Calculate travel time in seconds (assuming truckSpeed is in meters per second)
     public double calculateTravelTime(FireStation station, Fire fire, double truckSpeed) {
         double distance = station.calculateDistance(fire.getX(), fire.getY());
-        return distance / truckSpeed;  // time = distance / speed
+        return distance / truckSpeed;  // travel time in seconds
     }
 
+    // Calculate extinguishing time in seconds (with the given severity and number of trucks)
     public double calculateExtinguishingTime(Fire fire, int numTrucks) {
-        return (fire.getSeverity() * 5.0) / numTrucks; // More trucks = shorter time
+        return (fire.getSeverity() * 5.0) / numTrucks; // extinguishing time in seconds
     }
-    
-    
-
-
 }
