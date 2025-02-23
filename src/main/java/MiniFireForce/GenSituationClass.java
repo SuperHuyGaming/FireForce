@@ -17,8 +17,8 @@ public class GenSituationClass {
      */
     private void spreadFire(Fire fire) {
         Random random = new Random();
-        int newX = (int) fire.getX() + random.nextInt(-50, 50);
-        int newY = (int) fire.getY() + random.nextInt(-50, 50);
+        int newX = (int) fire.getX() + random.nextInt(100) - 50;
+        int newY = (int) fire.getX() + random.nextInt(100) - 50;
         int newSeverity = Math.max(1, fire.getSeverity() - 1); // New fire is slightly weaker
         LocalDateTime newTime = LocalDateTime.now();
 
@@ -56,8 +56,8 @@ public class GenSituationClass {
 
     public void generateFire() {
         Random random = new Random();
-        int x = random.nextInt(-1000, 1000);
-        int y = random.nextInt(-1000, 1000);
+        int x = random.nextInt(2000) - 1000;
+        int y = random.nextInt(2000) - 1000;
         int severity = random.nextInt(10) + 1;
         LocalDateTime time = LocalDateTime.now();
 
