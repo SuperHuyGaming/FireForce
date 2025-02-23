@@ -43,8 +43,9 @@ public class GenSituationClass {
         int y = random.nextInt(-1000, 1000);
         int severity = random.nextInt(10) + 1;
         LocalDateTime time = LocalDateTime.now();
+        int spread = random.nextInt(10) + 1;
 
-        Fire generateFire = new Fire(x, y, severity, time);
+        Fire generateFire = new Fire(x, y, severity, time, spread);
         activeFire.put(generateFire.getID(), generateFire);
     }
 
