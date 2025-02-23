@@ -13,7 +13,7 @@ public class GenSituationClass {
     private ScheduledExecutorService scheduler;
 
     /**
-     * Spread fire to a nearby location
+     * Spread fire to a nearby location as time flies
      */
     private void spreadFire(Fire fire) {
         Random random = new Random();
@@ -27,6 +27,9 @@ public class GenSituationClass {
         System.out.println("🔥 New fire spread to (" + newX + ", " + newY + ")");
     }
 
+    /**
+     * Constructor for the simulation
+     */
     public GenSituationClass() {
         this.activeFire = new HashMap<>();
         this.fireStations = new HashMap<>();
@@ -35,10 +38,18 @@ public class GenSituationClass {
         startFireTimer(); // Start automatic fire spreading
     }
 
+    /**
+     * This method returns a map of fires that are not extinguished
+     * @return active fires
+     */
     public Map<Integer, Fire> getActiveFires() {
         return activeFire;
     }
 
+    /**
+     * Generate new simulated fire
+     * @param fire new fire
+     */
     public void addActiveFire(Fire fire) {
         this.activeFire.put(fire.getID(), fire);
         for (FireStation fs : fireStations.values()) {
@@ -46,6 +57,9 @@ public class GenSituationClass {
         }
     }
 
+    /**
+     * Demonstrate the web of stations
+     */
     public Map<Integer, FireStation> getFireStations() {
         return fireStations;
     }
