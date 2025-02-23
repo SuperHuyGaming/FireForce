@@ -2,6 +2,10 @@ package MiniFireForce;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFire;
@@ -44,6 +48,7 @@ public class GenSituationClass {
         activeFire.put(generateFire.getID(), generateFire);
     }
 
+
     public List<FireStation> findFireStation(Fire fire) {
         ArrayList<FireStation> nearestStations = new ArrayList<>();
 
@@ -67,6 +72,7 @@ public class GenSituationClass {
     }
 
     public void deployFireTrucks(Fire fire) {
+
         // Calculate number of needed trucks
         int trucksNeeded = fire.getSeverity() / 2 + 1;
         List<FireStation> nearestStations = findFireStation(fire);
@@ -90,5 +96,41 @@ public class GenSituationClass {
     // Put down a fire and return deployed trucks
     public void removeFire(Fire fire) {
         activeFire.remove(fire.getID());
+    }
+
+    /**
+     * Start the fire time, each 20 seconds 0-10% spread increase is implemented
+     */
+    private void startFireTimer() {
+
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.scheduleAtFixedRate(() -> {
+
+            int spreadPercentage = 0; // Initialize spread percentage with 0% start
+
+            if (activeFire.isEmpty()) {
+                scheduler.shutdown();
+                return; // If the fire is extinguished, stop the timer
+            }
+
+            Random random = new Random();
+
+            // Iterate over all active fires
+            for (Fire fire : activeFire.values()) {
+                if (!fire.isActive()) {
+                    continue; // Skip if fire is extinguished
+                }
+
+                // Increase spread percentage by 0-10%
+                int spreadIncrease = random.nextInt(11); // Generate random value (0-10)
+                fire.increaseSpread(spreadIncrease); // Update fire's spread
+
+                // If spread reaches 100%, increase severity
+                if (fire.getSpread() >= 100 && fire.getSeverity() < 4) {
+                    fire.updateSeverity(fire.getSeverity() + 1);
+                    fire.resetSpread(); // Reset spread after severity increase
+                }
+            }
+        }, 20, 20, TimeUnit.SECONDS);
     }
 }
