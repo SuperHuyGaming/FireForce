@@ -1,90 +1,78 @@
 package MiniFireForce;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 import java.util.Map;
-
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 
 public class MapPanel extends JPanel {
     private GenSituationClass situation;
-
-    // Use Unicode symbols for overlay icons.
-    private final String fireIcon = "🔥";     
-    private final String truckIcon = "🚒";    
-    private final String stationIcon = "🏢";  
-
-    // The map image (background).
-    private Image mapImage;
-
+    
+    // Unicode icons for visualization.
+    private final String fireIcon = "🔥";
+    private final String truckIcon = "🚒";
+    private final String stationIcon = "🏢";
+    
     public MapPanel(GenSituationClass situation) {
         this.situation = situation;
         setPreferredSize(new Dimension(500, 500));
-
-        // Load the map image from resources.
-        // Adjust the path/name if needed.
-        mapImage = new ImageIcon(getClass().getResource("losangeles.png")).getImage();
     }
-
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        // 1) Draw the map background, scaled to fit the entire panel.
+        Graphics2D g2d = (Graphics2D) g;
         int width = getWidth();
         int height = getHeight();
-        g.drawImage(mapImage, 0, 0, width, height, this);
-
-        // 2) Overlay your icons. 
-        //    If you previously used coordinate scaling (e.g., -1000..1000), 
-        //    you might want to define a method to map simulation coordinates to panel coords.
         
-        // Example: just center everything as if your simulation coords are in [-1000..1000].
+        // Draw a new gradient background (dark navy to mid-blue)
+        Color topColor = new Color(10, 10, 50);
+        Color bottomColor = new Color(30, 30, 80);
+        GradientPaint gp = new GradientPaint(0, 0, topColor, 0, height, bottomColor);
+        g2d.setPaint(gp);
+        g2d.fillRect(0, 0, width, height);
+        
+        // Map simulation coordinates (assumed range -1000 to 1000) to panel coordinates.
         int offset = 10;
         int drawWidth = width - 2 * offset;
         int drawHeight = height - 2 * offset;
-        double scaleX = (double) drawWidth / 2000.0;  // if your range is -1000..1000
+        double scaleX = (double) drawWidth / 2000.0;
         double scaleY = (double) drawHeight / 2000.0;
         int centerX = offset + drawWidth / 2;
         int centerY = offset + drawHeight / 2;
-
-        // Draw Fire Stations.
-        g.setColor(Color.BLUE);
-        g.setFont(new Font("SansSerif", Font.PLAIN, 20));
+        
+        // Draw Fire Stations with a light blue icon.
+        g2d.setColor(new Color(135, 206, 250)); // light sky blue
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
         for (Map.Entry<Integer, FireStation> entry : situation.getFireStations().entrySet()) {
-            FireStation station = entry.getValue();
-            int drawX = centerX + (int)(station.getX() * scaleX);
-            int drawY = centerY - (int)(station.getY() * scaleY);
-            g.drawString(stationIcon, drawX - 10, drawY + 10);
+            FireStation st = entry.getValue();
+            int x = centerX + (int)(st.getX() * scaleX);
+            int y = centerY - (int)(st.getY() * scaleY);
+            g2d.drawString(stationIcon, x - 10, y + 10);
         }
-
-        // Draw Fires (in red).
-        g.setColor(Color.RED);
+        
+        // Draw Fires with an orange color.
+        g2d.setColor(Color.ORANGE);
         for (Map.Entry<Integer, Fire> entry : situation.getActiveFires().entrySet()) {
-            Fire fire = entry.getValue();
-            int drawX = centerX + (int)(fire.getX() * scaleX);
-            int drawY = centerY - (int)(fire.getY() * scaleY);
-            g.drawString(fireIcon, drawX - 10, drawY + 10);
+            Fire f = entry.getValue();
+            int x = centerX + (int)(f.getX() * scaleX);
+            int y = centerY - (int)(f.getY() * scaleY);
+            g2d.drawString(fireIcon, x - 10, y + 10);
         }
-// hello
-        // Draw Trucks (in green).
-        g.setColor(Color.GREEN.darker());
-        for (MovingTruck truck : situation.getMovingTrucks()) {
-            int truckX = centerX + (int)(truck.getCurrentX() * scaleX);
-            int truckY = centerY - (int)(truck.getCurrentY() * scaleY);
-            g.drawString(truckIcon, truckX - 10, truckY + 10);
-            
-            // If the truck is extinguishing, label it.
-            if (truck.getState() == MovingTruck.State.EXTINGUISHING) {
-                g.setColor(Color.BLACK);
-                g.setFont(new Font("Arial", Font.BOLD, 10));
-                g.drawString("Extinguishing", truckX + 12, truckY);
-                g.setFont(new Font("SansSerif", Font.PLAIN, 20));
-                g.setColor(Color.GREEN.darker());
+        
+        // Draw Moving Trucks with green.
+        g2d.setColor(Color.GREEN.darker());
+        g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
+        // Assume situation.getMovingTrucks() returns a List<MovingTruck>
+        for (MovingTruck mt : situation.getMovingTrucks()) {
+            int truckX = centerX + (int)(mt.getCurrentX() * scaleX);
+            int truckY = centerY - (int)(mt.getCurrentY() * scaleY);
+            g2d.drawString(truckIcon, truckX - 10, truckY + 10);
+            if (mt.getState() == MovingTruck.State.EXTINGUISHING) {
+                g2d.setColor(Color.WHITE);
+                g2d.setFont(new Font("Arial", Font.BOLD, 10));
+                g2d.drawString("Extinguishing", truckX + 15, truckY);
+                g2d.setFont(new Font("SansSerif", Font.BOLD, 22));
+                g2d.setColor(Color.GREEN.darker());
             }
         }
     }

@@ -4,22 +4,18 @@ public class FireStation {
     private float xStation;
     private float yStation;
     private int trucks;
-
-    // private PriorityQueue<Integer> queue;
-    private static int id;
-
-    // Take the location algorithm of Google Maps to estimate the distance
+    private  int id = 0;
+    private static int count;
 
     public FireStation(float xStation, float yStation, int trucks) {
         this.xStation = xStation;
         this.yStation = yStation;
         this.trucks = trucks;
-        id++;
+        id= ++count;
     }
 
-    //Getters
     public int getID() {
-        return FireStation.id;
+        return this.id;
     }
 
     public float getX() {
@@ -34,7 +30,6 @@ public class FireStation {
         return trucks;
     }
 
-
     public double calculateDistance(float xFire, float yFire) {
         return Math.sqrt((xFire - xStation) * (xFire - xStation) + (yFire - yStation) * (yFire - yStation));
     }
@@ -43,8 +38,8 @@ public class FireStation {
         return trucks > 0;
     }
 
-    // Return the number of needed trucks after deploy
-
+    // Deploy the given number of trucks.
+    // If not enough trucks are available, set trucks to 0 and return the extra needed.
     public int deployTruck(int requiredTrucks) {
         if (trucks < requiredTrucks) {
             int temp = requiredTrucks - trucks;
