@@ -70,7 +70,7 @@ public class MapPanel extends JPanel {
             int drawY = centerY - (int)(fire.getY() * scaleY);
             g.drawString(fireIcon, drawX - 10, drawY + 10);
         }
-
+// hello
         // Draw Trucks (in green).
         g.setColor(Color.GREEN.darker());
         for (MovingTruck truck : situation.getMovingTrucks()) {
