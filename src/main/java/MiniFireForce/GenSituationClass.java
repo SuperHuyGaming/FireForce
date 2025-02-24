@@ -4,6 +4,14 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * The {@code GenSituationClass} manages the entire fire simulation environment.
+ * It handles the spawning of fire stations, fire events, and the automatic deployment
+ * of fire trucks to extinguish fires. Fires can spread over time, and fire stations
+ * prioritize responses based on proximity.
+ *
+ * This class uses a scheduled executor to automate updates to the simulation.
+ */
 public class GenSituationClass {
     private final Map<Integer, Fire> activeFires;
     private final Map<Integer, FireStation> stations;
@@ -12,9 +20,16 @@ public class GenSituationClass {
     private EventLogger eventLogger;
     private volatile boolean paused = false;
 
-    // We'll spawn stations, fires, etc. continuously
-    private static final double TRUCK_SPEED = 50.0; // units per second
+    // Speed of fire trucks in units per second
+    private static final double TRUCK_SPEED = 50.0;
 
+    /**
+     * Initializes the simulation environment.
+     * - Spawns fire stations at regular intervals.
+     * - Spawns fires at random locations.
+     * - Automates fire truck deployment.
+     * - Simulates fire spread over time.
+     */
     public GenSituationClass() {
         activeFires = new HashMap<>();
         stations = new HashMap<>();
@@ -27,12 +42,20 @@ public class GenSituationClass {
         startFireTimer();
     }
 
-    // ========== Logging and Pause ==========
-
+    /**
+     * Sets the event logger for recording simulation events.
+     *
+     * @param logger an implementation of {@code EventLogger} to handle event logs
+     */
     public void setEventLogger(EventLogger logger) {
         this.eventLogger = logger;
     }
 
+    /**
+     * Pauses or resumes the simulation.
+     *
+     * @param p {@code true} to pause, {@code false} to resume
+     */
     public void setPaused(boolean p) {
         paused = p;
         if (eventLogger != null) {
@@ -40,36 +63,48 @@ public class GenSituationClass {
         }
     }
 
+    /**
+     * @return {@code true} if the simulation is paused, otherwise {@code false}
+     */
     public boolean isPaused() {
         return paused;
     }
 
-    // ========== Accessors ==========
-
+    /**
+     * @return a map of active fires in the simulation
+     */
     public Map<Integer, Fire> getActiveFires() {
         return activeFires;
     }
 
+    /**
+     * @return a map of fire stations in the simulation
+     */
     public Map<Integer, FireStation> getFireStations() {
         return stations;
     }
 
+    /**
+     * @return a list of moving fire trucks for animation purposes
+     */
     public List<MovingTruck> getMovingTrucks() {
         synchronized (movingTrucks) {
             return new ArrayList<>(movingTrucks);
         }
     }
 
-    // ========== Station, Fire Spawners ==========
+    // ================= Fire Station Spawning =================
 
+    /**
+     * Periodically spawns a new fire station at a random location every 30 seconds.
+     */
     private void startStationSpawner() {
-        // Add a new station every 30s
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused) {
                 Random r = new Random();
                 float x = r.nextInt(2000) - 1000;
                 float y = r.nextInt(2000) - 1000;
-                int trucks = r.nextInt(5) + 1; // 1..5
+                int trucks = r.nextInt(5) + 1; // 1 to 5 trucks
                 FireStation st = new FireStation(x, y, trucks);
                 stations.put(st.getID(), st);
                 if (eventLogger != null) {
@@ -79,8 +114,12 @@ public class GenSituationClass {
         }, 0, 30, TimeUnit.SECONDS);
     }
 
+    // ================= Fire Spawning =================
+
+    /**
+     * Periodically spawns a new fire at a random location every 10 seconds.
+     */
     private void startFireSpawner() {
-        // Add a new Fire every 10s
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused) {
                 generateFire();
@@ -88,23 +127,28 @@ public class GenSituationClass {
         }, 0, 10, TimeUnit.SECONDS);
     }
 
+    /**
+     * Generates a fire at a random location with a random severity.
+     */
     public void generateFire() {
         Random r = new Random();
         int x = r.nextInt(2000) - 1000;
         int y = r.nextInt(2000) - 1000;
-        int sev = r.nextInt(10) + 1;
+        int sev = r.nextInt(10) + 1; // Severity 1 to 10
         LocalDateTime now = LocalDateTime.now();
         Fire f = new Fire(x, y, sev, now);
         activeFires.put(f.getID(), f);
         if (eventLogger != null) {
-            eventLogger.log("New Fire: ID " + f.getID() + " at (" + x + ", " + y + "), sev=" + sev);
+            eventLogger.log("New Fire: ID " + f.getID() + " at (" + x + ", " + y + "), severity=" + sev);
         }
     }
 
-    // ========== Fire Timer (Spread) ==========
+    // ================= Fire Spread Simulation =================
 
+    /**
+     * Periodically spreads active fires and creates new nearby fires.
+     */
     public void startFireTimer() {
-        // Every 20s, existing fires may spread or spawn a new one
         scheduler.scheduleAtFixedRate(() -> {
             if (paused || activeFires.isEmpty()) return;
             Random rand = new Random();
@@ -120,6 +164,11 @@ public class GenSituationClass {
         }, 20, 20, TimeUnit.SECONDS);
     }
 
+    /**
+     * Creates a new fire near an existing fire.
+     *
+     * @param oldFire the fire from which a new fire is spreading
+     */
     private void spawnNearbyFire(Fire oldFire) {
         Random rand = new Random();
         int nx = (int)oldFire.getX() + rand.nextInt(101) - 50;
@@ -132,10 +181,12 @@ public class GenSituationClass {
         }
     }
 
-    // ========== Deploy ==========
+    // ================= Fire Truck Deployment =================
 
+    /**
+     * Periodically deploys fire trucks to active fires every 15 seconds.
+     */
     private void startAutoDeploy() {
-        // Every 15 seconds, automatically extinguish each active fire with 1 truck
         scheduler.scheduleAtFixedRate(() -> {
             if (!paused && !activeFires.isEmpty()) {
                 for (Fire f : new ArrayList<>(activeFires.values())) {
@@ -145,6 +196,12 @@ public class GenSituationClass {
         }, 5, 15, TimeUnit.SECONDS);
     }
 
+    /**
+     * Finds the nearest fire station to a given fire.
+     *
+     * @param fire the fire that needs a fire truck
+     * @return the nearest fire station, or {@code null} if none exist
+     */
     private FireStation findNearestStation(Fire fire) {
         FireStation nearest = null;
         double minDist = Double.MAX_VALUE;
@@ -158,6 +215,11 @@ public class GenSituationClass {
         return nearest;
     }
 
+    /**
+     * Deploys a fire truck to a specified fire.
+     *
+     * @param fire the fire that needs a truck
+     */
     public void deploySingleTruck(Fire fire) {
         // If the fire is already gone, skip
         if (!activeFires.containsKey(fire.getID())) return;
